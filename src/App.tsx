@@ -92,22 +92,18 @@ function App() {
     return first.length > 160 ? first.slice(0, 157) + '…' : first;
   };
 
-  // Türkiye'de mi kontrol et
   useEffect(() => {
-    const checkLocation = async () => {
-      try {
-        const response = await fetch('https://ipapi.co/json/');
-        const data = await response.json();
-        if (data.country_code !== 'TR') {
-          setLanguage('en');
-        }
-      } catch (error) {
-        // Hata durumunda varsayılan Türkçe kalır
-        console.log('Location detection failed, defaulting to Turkish');
-      }
-    };
-    
-    checkLocation();
+    const saved = localStorage.getItem('language');
+    if (saved === 'tr' || saved === 'en') {
+      setLanguage(saved as 'tr' | 'en');
+      return;
+    }
+    const navLang = (navigator.language || '').toLowerCase();
+    if (navLang.startsWith('tr')) {
+      setLanguage('tr');
+    } else {
+      setLanguage('en');
+    }
   }, []);
 
   // Dark mode kontrolü
@@ -118,9 +114,11 @@ function App() {
     if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
       setDarkMode(true);
       document.documentElement.classList.add('dark');
+      document.body.classList.add('dark');
     } else if (savedTheme === 'light') {
       setDarkMode(false);
       document.documentElement.classList.remove('dark');
+      document.body.classList.remove('dark');
     }
   }, []);
 
@@ -166,9 +164,11 @@ function App() {
     setDarkMode(newDarkMode);
     if (newDarkMode) {
       document.documentElement.classList.add('dark');
+      document.body.classList.add('dark');
       localStorage.setItem('theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
+      document.body.classList.remove('dark');
       localStorage.setItem('theme', 'light');
     }
   };
